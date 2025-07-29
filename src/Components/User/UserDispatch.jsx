@@ -61,6 +61,7 @@ const purchaserAddress = formData.purchaserAddress
 
         // Fetch user-specific data using their id
         const response = await adminAddQuaeyByIdAPI(userData.id);
+        console.log(response.data);
         
         if (response.data) {
           setUserDetails(response.data);
@@ -148,6 +149,7 @@ const purchaserAddress = formData.purchaserAddress
       // Calculate next numbers with leading zeros
       const nextSerial = String(currentSerial + 1).padStart(currentSerialStr.length, '0');
       const nextDispatch = String(currentDispatch + 1).padStart(currentDispatchStr.length, '0');
+console.log(nextSerial,"seral in userdispatch page");
 
       // Prepare data for preview (not saving to DB yet)
       const previewData = {
@@ -160,6 +162,7 @@ const purchaserAddress = formData.purchaserAddress
         createdAt: new Date().toISOString(),
         status: 'pending' // Mark as pending until printed
       };
+console.log(previewData,"preview data in userdispatch page");
 
       // Navigate to view page with preview data
 // In handleSubmit function, modify the navigate call:
