@@ -342,7 +342,7 @@ value={`${data.bulkPermitNo},${'Rough stone'}(${quantity}MT),${travellingDate
   {isDuplicate ? "Duplicate" : "Original"}
 </p>
 
-  <p style={{ marginLeft: '95px', }}>
+  <p style={{ marginLeft: '100px', }}>
   Date & Time of Dispatch:   {travellingDate
       ? new Date(travellingDate).toLocaleString('en-GB', {
           day: '2-digit',
