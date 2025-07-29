@@ -16,16 +16,18 @@ const navigate = useNavigate()
     const location = useLocation();
     const { previewData,userData,vehicleNo,totalDistance,quantity,driverName,destinationState,purchaserName,purchaserAddress,travellingDate,requiredTime } = location.state || {};
   const userId = userData?.data._id
+console.log(userId);
 
  const serialNumber = previewData?.SerialNo || '';
   const dispatchNumber = previewData?.dispatchNo || '';
+console.log("seral",serialNumber,"dis",dispatchNumber);
 
   const [queryData, setQueryData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
   const printRef = useRef();
 
-  
   
 
   useEffect(() => {
@@ -43,6 +45,7 @@ const navigate = useNavigate()
 
         // Pass the ID directly to the API function
         const response = await adminAddQuaeyByIdAPI(userId);
+        console.log(response);
         
         if (!response?.data) {
           throw new Error('No data received from server');
@@ -53,9 +56,9 @@ const navigate = useNavigate()
 // console.log("data",data);
 
 
-        const formattedDate = data.travellingDate 
+        const formattedDate = travellingDate 
         ? (() => {
-            const date = new Date(data.travellingDate);
+            const date = new Date(travellingDate);
             const pad = num => num.toString().padStart(2, '0');
             const randomSeconds = pad(Math.floor(Math.random() * 61)); // 00-60
             const hours = date.getHours();
@@ -101,6 +104,7 @@ const handleAfterPrint = async () => {
     }
 
     const lastAdmin = lastAdminResponse.data;
+    console.log(lastAdmin?._id, "lastadmin id");
     
     if (!lastAdmin?._id) {
       throw new Error("No valid admin ID found");
@@ -130,6 +134,7 @@ const handleAfterPrint = async () => {
     const response = await adminQuaeyIdupdateAPI(userId, updatedData);
     
     if (response.status >= 200 && response.status < 300) {
+      console.log("Serial number updated in admin DB:", response.data);
       setQueryData(updatedData);
     } else {
       throw new Error(response.data?.message || "Update failed with unknown error");
@@ -148,12 +153,8 @@ const handlePrint = async () => {
       setError('No data available to print');
       return;
     }
-     const dataToSend = {
-      ...queryData,
-      SerialNo: serialNumber // Add the serial number here
-    };
 try {
-      const response = await queryDataAPI(dataToSend);
+      const response = await queryDataAPI(queryData);
       if (!response.data.success) {
         throw new Error(response.data.message || 'Failed to save query data');
       }
@@ -313,7 +314,7 @@ try {
 {serialNumber && (
   <div style={{marginLeft:'19px',fontWeight:'1000', }}>
     <QRCodeSVG 
-value={`${data.bulkPermitNo},${'Rough stone'}(${quantity}MT),${travellingDate
+value={`${data.bulkPermitNo},${'Rough stone'}(${data.quantity}MT),${travellingDate
       ? new Date(travellingDate).toLocaleString('en-GB', {
           day: '2-digit',
           month: '2-digit',
@@ -342,19 +343,8 @@ value={`${data.bulkPermitNo},${'Rough stone'}(${quantity}MT),${travellingDate
   {isDuplicate ? "Duplicate" : "Original"}
 </p>
 
-  <p style={{ marginLeft: '100px', }}>
-  Date & Time of Dispatch:   {travellingDate
-      ? new Date(travellingDate).toLocaleString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        })
-        .replace(/\//g, '-')
-        .replace(',', '')    
-      : '-'}
+  <p style={{ marginLeft: '87px', }}>
+  Date & Time of Dispatch: {queryData.formattedTravellingDate || "-"}
 </p>
 
 
@@ -407,7 +397,7 @@ value={`${data.bulkPermitNo},${'Rough stone'}(${quantity}MT),${travellingDate
             <td>Bulk Transist Pass No:</td>
             <td>{data.bulkPermitNo}</td>
             <td>Security Papper Serial No</td>
-            <td>{`TSPS${serialNumber}`}</td>
+            <td>{`TSPS${data.SerialNo}`}</td>
           </tr>
           <tr>
             <td>Vehicle No :</td>
@@ -533,6 +523,15 @@ value={`${data.bulkPermitNo},${'Rough stone'}(${quantity}MT),${travellingDate
       </div>
 
       {/* Image preview */}
+      {imageUrl && (
+        <div className="image-preview no-print">
+          <h3></h3>
+          <img src={imageUrl} alt="Converted document" style={{ maxWidth: '100%' }} />
+          <a href={imageUrl} download="document.png" className="download-link">
+            
+          </a>
+        </div>
+      )}
     </div>
   );
 }
